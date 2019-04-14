@@ -150,11 +150,6 @@ export default
 </script>
 
 <style scoped>
-.interalForm
-	{
-	padding: .25em;
-	}
-
 input
 	{
 	margin:2px;
@@ -193,6 +188,11 @@ textarea:focus
 .comment h4
 	{
 	margin:0.25em;
+	}
+
+.interalForm
+	{
+	padding: .25em;
 	}
 
 .version input

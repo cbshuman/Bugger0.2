@@ -34,16 +34,16 @@
 				</div>
 			</form>
 
-			<form>
+			<form @submit.prevent="AddPermission">
 				<h4>User Permissions:</h4>
 				<hr>
 				<div class = "layoutInterior">
 					<p>Email/Username:</p> 
-					<input placeholder="Email Address">
+					<input placeholder="Email Address" v-model="permissionUsername">
 					<p>Security Group:</p>
-					<input placeholder="Security Group">
+					<input placeholder="Security Group" v-model="securityGroup">
 				</div>
-				<button> Add Security Group </button> | <button> Remove Security Group </button>
+				<button @click="AddRemoveSecurity(true)"> Add Security Group </button> | <button @click="AddRemoveSecurity(false)"> Remove Security Group </button>
 			</form>
 		</div>
 	</div>
@@ -70,6 +70,10 @@ export default
 			deleteUsername: '',
 			deletePassword: '',
 			deletePasswordrept: '',
+			permissionUsername:'',
+			securityGroup: '',
+			securityRemoveAdd: true,
+			error: '',
 			}
 		},
 	components:
@@ -85,7 +89,16 @@ export default
 		},
 	methods:
 		{
-
+		async AddPermission()
+			{
+			this.error = await this.$store.dispatch("UpdateUserPermissions", { username: this.permissionUsername, permission: this.securityGroup, addPermission: this.securityRemoveAdd,});
+			this.permissionUsername = '';
+			this.securityGroup = '';
+			},
+		AddRemoveSecurity(value)
+			{
+			this.securityRemoveAdd = value;
+			},
 		}
 	}
 </script>

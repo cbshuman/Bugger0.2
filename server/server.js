@@ -35,6 +35,6 @@ const users = require("./users.js");
 app.use("/api/users", users.routes);
 
 const permissions = require("./permissions.js");
-app.use("/api/permissions", permissions);
+app.use("/api/permissions", permissions.routes);
 
 app.listen(3000, () => console.log('Server listening on port 3000!'));

@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div v-if="userAdmin">
 		<div class="content">
 			<b>Select Portlet: </b> 
 			<a @click="ShowUsers">Users</a> | 
@@ -43,6 +43,7 @@ export default
 		},
 	computed:
 		{
+		userAdmin(){ console.log(this.$store.state.user);  return this.$store.state.user.permissions.includes("admin"); },
 		},
 	methods:
 		{

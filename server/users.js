@@ -3,7 +3,8 @@ const bcrypt = require("bcrypt");
 const express = require("express");
 const router = express.Router();
 const auth = require("./auth.js");
-
+const security = require("./permissions.js");
+const securityModel = security.model;
 const SALT_WORK_FACTOR = 10;
 
 // Users
@@ -168,6 +169,70 @@ router.post('/login', async (req, res) =>
 		}
 	});
 
+//Change Permissions
+router.put('/update/security/', auth.verifyToken, securityModel.verify, async (req, res) =>
+	{
+	console.log("Updating Security . . ." + "Removing: " + req.body.addPermission);
+	try
+		{
+		const user = await User.findOne({ username: req.body.username });
+
+		//Can't take the admin out of the admin group
+		if(req.body.permission == 'admin' && req.body.username == 'admin')
+			{
+			return res.sendStatus(403);
+			}
+
+		if(!user.permissions)
+			{
+			user.permissions = '';
+			}
+
+		console.log(req.hasPermission);
+	
+		if(!req.hasPermission)
+			{
+			//console.log("Permission is not there");
+			return res.sendStatus(500);
+			}
+
+		if (req.body.addPermission)
+			{
+			if(user.permissions.includes(req.body.permission))
+				{
+				console.log("Already has permission");
+				return res.sendStatus(500);
+				}
+			user.permissions.push(req.body.permission);
+			}
+		else if(!req.body.addPermission)
+			{
+			if(!user.permissions.includes(req.body.permission))
+				{
+				console.log("Can't remove permission that isn't there");
+				return res.sendStatus(500);
+				}
+			for(let i = 0; i < user.permissions.length; i++)
+				{
+				if(user.permissions[i] == req.body.permission)
+					{
+					console.log("Removing permission at: " + i);
+					user.permissions.splice(i,i+1);
+					break;
+					}
+				}
+			}
+
+		await user.save();
+		return res.send(user)
+		}
+	catch (error)
+		{
+		console.log(error);
+		return res.sendStatus(500);
+		}
+	});
+
 //Update profile information
 router.put('/update/:id', auth.verifyToken, async (req, res) =>
 	{
@@ -199,45 +264,6 @@ router.put('/update/:id', auth.verifyToken, async (req, res) =>
 		await user.save();
 		return res.send(user);
 		} 
-	catch (error)
-		{
-		console.log(error);
-		return res.sendStatus(500);
-		}
-	});
-
-//Change Password
-router.put('/update/security/:id', auth.verifyToken, async (req, res) =>
-	{
-	try
-		{
-		const user = await User.findOne({ _id: req.body.id });
-		//console.log("Updating Password for: " + user.username + "-" + req.body.oldPassword);
-
-		if(!user.permissions)
-			{
-			user.permissions = '';
-			}
-
-		if (req.body.addPermission)
-			{
-			user.permissions.push(req.body.permission);
-			}
-		else if(!req.body.addPermission)
-			{
-			for(let i = 0; i < user.permissions.length; i++)
-				{
-				if(user.permissions[i] == req.body.permission)
-					{
-					user.splice(i,i);
-					return;
-					}
-				}
-			}
-
-		await user.save();
-		return res.send(user)
-		}
 	catch (error)
 		{
 		console.log(error);

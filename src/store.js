@@ -60,6 +60,18 @@ export default new Vuex.Store(
 				return "";
 				}
 			},
+		async UpdateUserPermissions(context,data)
+			{
+			try
+				{
+				let response = await axios.put("/api/users/update/security/",data);
+				return "";
+				}
+			catch (error)
+				{
+				return "";
+				}
+			},
 		async LogOut(context)
 			{
 			try

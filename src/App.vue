@@ -12,7 +12,7 @@
 			<router-link to="/projects">Projects</router-link>
 			<router-link to="/bugList">Bug List</router-link>
 			<router-link to="/userPrefs">Profile</router-link>
-			<router-link to="/admin">Admin</router-link>
+			<router-link to="/admin" v-if="userAdmin">Admin</router-link>
 			<router-link to="/about">About</router-link>
 			<a  @click="LogOut()" href="/">Logout</a>
 		</div>
@@ -43,6 +43,7 @@ export default
 	computed:
 		{
 		user() { return this.$store.state.user; },
+		userAdmin(){ console.log(this.$store.state.user);  return this.$store.state.user.permissions.includes("admin"); },
 		},
 	methods:
 		{

@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const express = require("express");
 const router = express.Router();
-
 const auth = require("./auth.js");
 const users = require("./users.js");
 const User = users.model;
@@ -17,6 +16,44 @@ permissionSchema.virtual('id').get(function() { return this._id.toHexString(); }
 
 // Ensure virtual fields are serialised when we turn this into a JSON object
 permissionSchema.set('toJSON', { virtuals: true });
+
+// middleware to validate user account
+permissionSchema.statics.verify = async function(req, res, next)
+	{
+	let permission = await Permission.findOne({permissionName : req.body.permission});
+
+	if (!permission)
+		{
+		req.hasPermission = false;
+		}
+	else
+		{
+		req.hasPermission = true;
+		}
+
+	next();
+	}
+
+const PermissionExists = async (group) =>
+	{
+	try
+		{
+		let permission = await Permission.find(group);
+	
+		if(!permission)
+			{
+			return(false);
+			}
+		else
+			{
+			return(true);
+			}
+		}
+	catch
+		{
+		return(false);
+		}
+	}
 
 const Permission = mongoose.model('Permission', permissionSchema);
 
@@ -57,7 +94,7 @@ router.delete("/:permissionName", auth.verifyToken, async (req, res) =>
 	try
 		{
 		//console.log("Deleting: " + req.params.removalusername );
-		await User.deleteOne({ permissionName : req.params.permissionName });
+		await Permission.deleteOne({ permissionName : req.params.permissionName });
 		return res.sendStatus(200);
 		}
 	catch (error)
@@ -67,4 +104,4 @@ router.delete("/:permissionName", auth.verifyToken, async (req, res) =>
 		}
 	});
 
-module.exports = router;
+module.exports = { model: Permission, routes: router}
