@@ -8,20 +8,22 @@
 
 				<div class = "layoutInterior">
 				<p>Project Name:</p>
-				<input v-model="projectName">
+				<input v-model="projectName" placeholder="Enter the name of the new project">
 				<p>Default Bug Contact:</p>
-				<input v-model="defaultContact">
+				<input v-model="defaultContact" placeholder="Enter the name of the default bug contact">
 				<p>Project Discription:</p>
 				<textarea name="message" placeholder="Describe the project using as many details as possible" v-model="projDiscrip"></textarea>
 				<p>Security Groups:</p>
-					<div class = "layoutInterior">
+					<div class="securityLayout">
+						<center>Avalible</center>
+						<center>Selected</center>
 						<div class="securityGroups">
-							<div v-for="permission in permissionsAvaliable">
+							<div class="securityItem" v-for="permission in permissionsAvaliable" @click="MoveSecurityGroup(permissionsSelected,permissionsAvaliable,permission)">
 							{{permission.permissionName}}
 							</div>
 						</div>
-						<div class="securityGroups">
-							<div v-for="permission in permissionsSelected">
+						<div overflow-y: scroll class="securityGroups">
+							<div class="securityItem" v-for="permission in permissionsSelected" @click="MoveSecurityGroup(permissionsAvaliable,permissionsSelected,permission)">
 							{{permission.permissionName}}
 							</div>
 						</div>					
@@ -32,7 +34,7 @@
 				<button @click="ToggleForm">Cancel</button>
 			</form>
 
-			* All fields (except security groups) required
+			* All fields (except security groups) are required.
 			<br>** Once created, a project can only be modified by an admin.
 			</div>
 		</div>
@@ -73,8 +75,23 @@ export default
 		{
 		async CreateProject()
 			{
+			let finalPermissions = [];
+			for(let i = 0; i < this.permissionsSelected.length; i++)
+				{
+				finalPermissions.push(this.permissionsSelected[i].permissionName);
+				}
+			await this.$store.dispatch("CreateProject",{ projectName: this.projectName,	projectDisc: this.projDiscrip, defaultAssignee: this.defaultContact, permissions: finalPermissions,});
 			await this.$store.dispatch("GetProjects",);
 			this.ToggleForm();
+			},
+		MoveSecurityGroup(to,from,item)
+			{
+			to.push(item);
+			var index = from.indexOf(item);
+			if (index > -1)
+				{
+				from.splice(index, 1);
+				}
 			},
 		}
 	}
@@ -151,7 +168,23 @@ textarea:focus
 .securityGroups
 	{
 	margin:5px;
+	height:5em;
+	overflow: hidden;
+ 	overflow-y: scroll;
 	background-color: white;
+	border: 3px solid #5E807F;
+	}
+
+.securityItem:hover
+	{
+	background-color: #17B890;
+	border: 3px solid #17B890;
+	}
+
+.securityLayout
+	{
+  	display: grid;
+	grid-template-columns: 50% 50%;
 	}
 
 .version input

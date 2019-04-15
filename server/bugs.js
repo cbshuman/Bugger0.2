@@ -1,10 +1,15 @@
 const mongoose = require('mongoose');
 const express = require("express");
 const router = express.Router();
-const auth = require("./auth.js");
 
+//User authentication
+const auth = require("./auth.js");
 const users = require("./users.js");
 const User = users.model;
+
+//Project data
+const projects = require("./projects.js");
+const Project = projects.model;
 
 //Project Schema
 const bugSchema = new mongoose.Schema(
@@ -183,16 +188,14 @@ router.put('/comment/:id', auth.verifyToken, User.verify, async (req, res) =>
 		}
 	});
 
-
 //Create new bug
-router.post('/', auth.verifyToken, User.verify, async (req, res) =>
+router.post('/', auth.verifyToken, User.verify, Project.defaultContact, async (req, res) =>
 	{
-	//console.log("Version" + req.body.ver1 + "." + req.body.ver2);
 	const bug = new Bug(
 		{
 		bugNickname: req.body.bugNickname,
 		emailReport: req.body.emailReport,
-		emailPrimary: '',
+		emailPrimary: req.defaultcontact,
 		emailSecondary: '',
 		emailQA: '',
 		dateCreated: new Date(Date.now()).toLocaleString(),

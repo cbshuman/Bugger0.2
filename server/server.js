@@ -26,7 +26,7 @@ const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
 const projects = require("./projects.js");
-app.use("/api/projects", projects);
+app.use("/api/projects", projects.routes);
 
 const bugs = require("./bugs.js");
 app.use("/api/bugs", bugs);

@@ -6,12 +6,15 @@
 			<tr>
 				<th width="20%">Project Name</th>
 				<th>Bug Count</th>
-				<th>Discription</th>
+				<th>Default Bug Contact</th>
 				<th>Security Groups</th>
+				<th>Discription</th>
 			</tr>
 			<tr v-for="project in projects" v-if="showProjects">
 				<td>{{project.projectName}} </td>
 				<td>{{project.bugs.length}}</td>
+				<td>{{project.defaultAssignee}}</td>
+				<td><p v-for="permissions in project.permissions">{{permissions}}</p></td>
 				<td>{{project.projectDisc}} </td>
 			</tr>
 		</table>

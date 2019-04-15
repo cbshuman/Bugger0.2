@@ -186,5 +186,18 @@ export default new Vuex.Store(
 				console.log(error);
 				}
 			},
+		async CreateProject(context,data)
+			{
+			try
+				{
+				let response = await axios.post("/api/projects",data);
+				return response.data;
+				}
+			catch (error)
+				{
+				console.log(error);
+				return "Error: " + error.response.data.message;
+				}
+			},
 		}
 	})

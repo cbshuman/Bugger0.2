@@ -78,12 +78,14 @@ export default
 		{
 		async CreateBug()
 			{
+			console.log("Creating a new bug:");
+			console.log(this.project);
 			await this.$store.dispatch("CreateBug",
 						{
 						bugNickname: this.bugNickname,
 						emailReport: this.emailReport,
 						priority: this.priority,
-						project: this.project,
+						project: this.project.projectName,
 						ver1: this.ver1,
 						ver2: this.ver2,
 						ver3: this.ver3,

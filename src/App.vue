@@ -64,9 +64,9 @@ a
 
 body
 	{
-  	background-color: #5E807F !important;
-  	color: #082D0F !important;
-  	margin: 0;
+	background-color: #5E807F !important;
+	color: #082D0F !important;
+	margin: 0;
 	}
 
 h1
@@ -105,19 +105,19 @@ h4
 
 .layout
 	{
-  	display: grid;
+	display: grid;
 	grid-template-columns: auto auto;
 	}
 
 .layoutInterior
 	{
-  	display: grid;
+	display: grid;
 	grid-template-columns: 25% 50%;
 	}
 
 .header
 	{
-  	background-color: #DEE5E5;
+	background-color: #DEE5E5;
 	border-bottom: 3px solid #082D0F;
 	padding:.25em;
 	margin:0px;
@@ -129,10 +129,10 @@ h4
 	margin-top:2em;
 	margin-left: auto;
 	margin-right: auto;
-  	text-align: center;
+	text-align: center;
 	display: block;
 	width:25%;
-  	background-color: #DEE5E5;
+	background-color: #DEE5E5;
 	border: 5px solid #082D0F;
 	border-radius:5px;
 	}
@@ -147,7 +147,7 @@ h4
 	margin:0px;
 	margin-bottom:1em;
 	width: 100%;
-  	background-color: #9DC5BB;
+	background-color: #9DC5BB;
 	border-bottom: 3px solid #082D0F;
 	font-size:1.15em;
 	}
@@ -161,8 +161,8 @@ h4
 .navigationbar a:hover
 	{
 	font-size:1.25em;
-  	background-color: #DEE5E5;
-  	background-color: #DEE5E5;
+	background-color: #DEE5E5;
+	background-color: #DEE5E5;
 	border-bottom: 3px solid #082D0F;
 	border-right: 3px solid #082D0F;
 	border-left: 3px solid #082D0F;
@@ -173,7 +173,7 @@ h4
 	{
 	color: #082D0F;
 	font-size:1.25em;
-  	background-color: #DEE5E5;
+	background-color: #DEE5E5;
 	border-bottom: 3px solid #082D0F;
 	border-right: 3px solid #082D0F;
 	border-left: 3px solid #082D0F;

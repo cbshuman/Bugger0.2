@@ -16,7 +16,7 @@
 							<div v-else>
 								<img src="/Profile_icon_Defualt.png">
 							</div>
-							<br><button class = "buttonUpload"> Upload</button>
+							<br><button class = "buttonUpload"> Upload New </button>
 						</center>
 					</div>
 				</div>
@@ -132,7 +132,7 @@ input
 img
 	{
 	height:5em;
-  	background-color: #5E807F !important;
+	background-color: #5E807F !important;
 	border: 3px solid #082D0F;
 	border-radius:500px;
 	}
