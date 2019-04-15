@@ -94,5 +94,4 @@ p
 	text-align: right;
 	margin:2px;
 	}
-
 </style scoped>

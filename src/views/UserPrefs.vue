@@ -2,21 +2,22 @@
 	<div class="content">
 		<h3>User Preferances</h3>
 		<hr>
-		<img src="/Profile_icon_Defualt.png">
+
 		<form @submit.prevent="UpdateUser()">
 			<div class = "layout">
-				<div class ="interalForm">
-					<h4>Naming:</h4>
+				<div>
+				<h4>Profile Picture: </h4>
 					<hr>
-					<div class = "layoutInterior">
-						<p>Email/Username:</p>
-						<input placeholder="Email Address" v-model="user.username">
-						<p>First Name:</p>
-						<input placeholder="Real first name" v-model="user.firstName">
-						<p>Last Name:</p>
-						<input placeholder="Real last name" v-model="user.lastName">
-						<p>Alias:</p>
-						<input placeholder="Name to appear in comments" v-model="user.alias">
+					<div class="profilePicture">
+						<center>
+							<div v-if="user.profilepic">
+								<img v-blind:src="user.profilepic">
+							</div>
+							<div v-else>
+								<img src="/Profile_icon_Defualt.png">
+							</div>
+							<br><button class = "buttonUpload"> Upload</button>
+						</center>
 					</div>
 				</div>
 
@@ -32,6 +33,22 @@
 						<input placeholder="Secondary email" v-model="user.secondaryEmail">
 					</div>
 				</div>
+
+				<div class ="interalForm">
+					<h4>Naming:</h4>
+					<hr>
+					<div class = "layoutInterior">
+						<p>Email/Username:</p>
+						<input placeholder="Email Address" v-model="user.username">
+						<p>First Name:</p>
+						<input placeholder="Real first name" v-model="user.firstName">
+						<p>Last Name:</p>
+						<input placeholder="Real last name" v-model="user.lastName">
+						<p>Alias:</p>
+						<input placeholder="Name to appear in comments" v-model="user.alias">
+					</div>
+				</div>
+
 			</div>
 		<button>Save Changes</button>
 		</form>
@@ -74,7 +91,7 @@ export default
 	name: 'UserPrefs',
 	data()
 		{
-		return {oldPassword: "", newPassword: "", newPasswordRepeat: "", }
+		return {oldPassword: "", newPassword: "", newPasswordRepeat: "", errorB: "", }
 		},
 	components:
 		{
@@ -126,8 +143,19 @@ p
 	margin:2px;
 	}
 
+.buttonUpload
+	{
+	width:100%;
+	}
+
 .interalForm
 	{
+	padding: .25em;
+	}
+
+.profilePicture
+	{
+	width:5em;
 	padding: .25em;
 	}
 

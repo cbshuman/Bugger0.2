@@ -128,7 +128,6 @@ export default new Vuex.Store(
 			try
 				{
 				let response = await axios.get("/api/bugs/user/");
-				console.log(response.data);
 				context.commit('setBugs',response.data);
 				return true;
 				}
@@ -142,6 +141,19 @@ export default new Vuex.Store(
 			try
 				{
 				let response = await axios.get("/api/bugs/" + bugID ,{ id: bugID, });
+				return response.data;
+				}
+			catch (error)
+				{
+				console.log(error);
+				return "Error: " + error.response.data.message;
+				}
+			},
+		async CreateBug(context,data)
+			{
+			try
+				{
+				let response = await axios.post("/api/bugs",data);
 				return response.data;
 				}
 			catch (error)

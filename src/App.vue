@@ -43,7 +43,7 @@ export default
 	computed:
 		{
 		user() { return this.$store.state.user; },
-		userAdmin(){ console.log(this.$store.state.user);  return this.$store.state.user.permissions.includes("admin"); },
+		userAdmin(){ return this.$store.state.user.permissions.includes("admin"); },
 		},
 	methods:
 		{

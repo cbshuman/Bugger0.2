@@ -7,19 +7,19 @@
 				<th width="20%">Bug Id</th>
 				<th>Bug Nickname</th>
 				<th>Primary Contact</th>
-				<th>Discription</th>
 				<th>Status</th>
 				<th>Project</th>
 				<th>Version</th>
+				<th>Discription</th>
 			</tr>
 			<tr v-for="bug in bugs" v-if="show">
 				<td><router-link v-bind:to="'/bug#' + bug._id">{{bug._id}}</router-link></td>
 				<td>{{bug.bugNickname}}</td>
 				<td>{{bug.emailPrimary}}</td>
-				<td>{{bug.bugDiscrip}}</td>
 				<td>{{bug.status}} </td>
 				<td>{{bug.project}} </td>
 				<td>{{bug.ver1}}.{{bug.ver2}}.{{bug.ver3}}.{{bug.ver4}} </td>
+				<td>{{bug.bugDiscrip}}</td>
 			</tr>
 		</table>
 	</div>
@@ -68,7 +68,7 @@ th
 
 td
 	{
-	padding:.5em;
+	padding:.25em;
 	}
 
 tr:hover
