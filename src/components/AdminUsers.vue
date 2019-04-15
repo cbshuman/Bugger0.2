@@ -3,7 +3,7 @@
 		<h3>User Administration</h3>
 		<hr>
 		<div class = "layout">
-			<form>
+			<form @submit.prevent="CreateNewUser()">
 				<h4>Add new User</h4>
 				<hr>
 				<div class = "layoutInterior">
@@ -26,10 +26,6 @@
 				<div class = "layoutInterior">
 					<p>Email/Username:</p>
 					<input placeholder="Email Address" v-model="deleteUsername">
-					<p>Admin Password:</p>
-					<input placeholder="Admin Password" v-model="deletePassword">
-					<p>Confirm Admin Password:</p>
-					<input placeholder="Admin Password" v-model="deletePasswordrept">
 					<p><button type="submit"> Remove User </button></p>
 				</div>
 			</form>
@@ -43,6 +39,7 @@
 					<p>Security Group:</p>
 					<input placeholder="Security Group" v-model="securityGroup">
 				</div>
+				<div v-if="error"> {{error}} </div>
 				<button @click="AddRemoveSecurity(true)"> Add Security Group </button> | <button @click="AddRemoveSecurity(false)"> Remove Security Group </button>
 			</form>
 		</div>
@@ -68,8 +65,6 @@ export default
 			newLast: '',
 			newMessage: '',
 			deleteUsername: '',
-			deletePassword: '',
-			deletePasswordrept: '',
 			permissionUsername:'',
 			securityGroup: '',
 			securityRemoveAdd: true,
@@ -99,6 +94,16 @@ export default
 			{
 			this.securityRemoveAdd = value;
 			},
+		async CreateNewUser()
+			{
+			this.error = await this.$store.dispatch("CreateNewUser",
+				{
+				username: this.newUsername,
+				firstName: this.newPassword,
+				lastName: this.newFirst,
+				password: this.newLast,
+				});
+			}
 		}
 	}
 </script>

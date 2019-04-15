@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 const express = require("express");
 const router = express.Router();
+
+//user authentication
 const auth = require("./auth.js");
-const users = require("./users.js");
-const User = users.model;
 
 const permissionSchema = new mongoose.Schema(
 	{
@@ -17,7 +17,7 @@ permissionSchema.virtual('id').get(function() { return this._id.toHexString(); }
 // Ensure virtual fields are serialised when we turn this into a JSON object
 permissionSchema.set('toJSON', { virtuals: true });
 
-// middleware to validate user account
+// middleware to check if a permission exists
 permissionSchema.statics.verify = async function(req, res, next)
 	{
 	let permission = await Permission.findOne({permissionName : req.body.permission});
@@ -57,6 +57,23 @@ const PermissionExists = async (group) =>
 
 const Permission = mongoose.model('Permission', permissionSchema);
 
+router.post('/', auth.verifyToken, async (req, res) =>
+	{
+	//console.log("Creating a new permission . . .");
+
+	const permission = new Permission({permissionName: req.body.permissionName, permissionDisc: req.body.permissionDisc,});
+	try
+		{
+		await permission.save();
+		return res.send(permission);
+		}
+	catch (error)
+		{
+		console.log(error);
+		return res.sendStatus(500);
+		}
+	});
+
 router.get('/', async (req, res) =>
 	{
 	//console.log("Getting permissions . . .");
@@ -72,23 +89,7 @@ router.get('/', async (req, res) =>
 		}
 	});
 
-router.post('/', async (req, res) =>
-	{
-	//console.log("Creating a new permission . . .");
-	const permission = new Permission({permissionName: req.body.permissionName, permissionDisc: req.body.permissionDisc,});
-	try
-		{
-		await permission.save();
-		return res.send(permission);
-		}
-	catch (error)
-		{
-		console.log(error);
-		return res.sendStatus(500);
-		}
-	});
-
-//Delete user
+//Delete permission
 router.delete("/:permissionName", auth.verifyToken, async (req, res) =>
 	{
 	try

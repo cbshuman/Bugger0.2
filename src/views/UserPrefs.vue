@@ -16,7 +16,8 @@
 							<div v-else>
 								<img src="/Profile_icon_Defualt.png">
 							</div>
-							<br><button class = "buttonUpload"> Upload New </button>
+							<br>
+							<input type="file" name="photo" @change="fileChanged">
 						</center>
 					</div>
 				</div>
@@ -61,7 +62,7 @@
 					<p>UserID:</p>
 					<i>{{user._id}}</i>
 					<p>Permissions:</p>
-					<div>
+					<div class="internalForm">
 						<i v-for="permission in user.permissions">{{permission}}, <br></i>
 					</div>
 				</div>
@@ -91,14 +92,13 @@ export default
 	name: 'UserPrefs',
 	data()
 		{
-		return {oldPassword: "", newPassword: "", newPasswordRepeat: "", errorB: "", }
+		return {oldPassword: "", newPassword: "", newPasswordRepeat: "", file: null, errorB: "", }
 		},
 	components:
 		{
 		},
 	async created()
 		{
-
 		await this.$store.dispatch("GetUser",);
 		},
 	computed:
@@ -108,11 +108,27 @@ export default
 		},
 	methods:
 		{
+		fileChanged(event)
+			{
+			this.file = event.target.files[0]
+			},
 		UpdatePassword()
 			{
 			},
-		UpdateUser()
+		async UpdateUser()
 			{
+			await this.$store.dispatch("UpdateUser",
+				{
+				_id: this.user._id,
+				username: this.user.username,
+				firstName: this.user.firstName,
+				lastName: this.user.lastName,
+				alias: this.user.alias,
+				address: this.user.address,
+				phone: this.user.phone,
+				secondaryEmail: this.user.secondaryEmail,
+				});
+			await this.$store.dispatch("GetUser",);
 			},
 		}
 	}
@@ -122,6 +138,11 @@ export default
 form
 	{
 	padding: .25em;
+	}
+
+button
+	{
+	margin:2px;
 	}
 
 input

@@ -60,16 +60,55 @@ export default new Vuex.Store(
 				return "";
 				}
 			},
-		async UpdateUserPermissions(context,data)
+		async CreateNewUser(context, data)
 			{
 			try
 				{
-				let response = await axios.put("/api/users/update/security/",data);
+				let response = await axios.post("/api/users/", data);
 				return "";
 				}
 			catch (error)
 				{
 				return "";
+				}
+			},
+		async CreateRemoveUser(context, data)
+			{
+			try
+				{
+				let response = await axios.post("/api/users/", data);
+				context.commit('setUser', response.data);
+				return "";
+				}
+			catch (error)
+				{
+				return "";
+				}
+			},
+		async UpdateUser(context,data)
+			{
+			try
+				{
+				console.log(this.state.user._id);
+				let response = await axios.put("/api/users/update/", data);
+				return "";
+				}
+			catch(error)
+				{
+				console.log(error);
+				return error;
+				}
+			},
+		async UpdateUserPermissions(context,data)
+			{
+			try
+				{
+				let response = await axios.put("/api/users/update/security/",data);
+				return "Successfully Added Permission!";
+				}
+			catch (error)
+				{
+				return (this.error = error);
 				}
 			},
 		async LogOut(context)

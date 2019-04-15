@@ -2,9 +2,12 @@ const mongoose = require('mongoose');
 const bcrypt = require("bcrypt");
 const express = require("express");
 const router = express.Router();
+
 const auth = require("./auth.js");
+
 const security = require("./permissions.js");
 const securityModel = security.model;
+
 const SALT_WORK_FACTOR = 10;
 
 // Users
@@ -18,6 +21,7 @@ const userSchema = new mongoose.Schema(
 	address: String,
 	phone: String,
 	secondaryEmail: String,
+	profilePicture: String,
 	permissions: [],
 	tokens: [],
 	});
@@ -73,10 +77,21 @@ userSchema.statics.verify = async function(req, res, next)
 		{
 		return res.clearCookie('token').status(403).send({ error: "Invalid user account." });
 		}
+	else if (user.permissions.includes('admin'))
+		{
+		req.isAdmin = true;
+		}
+	else
+		{
+		req.isAdmin = false;
+		}
+
+	//console.log(req.isAdmin);
 
 	req.user = user;
 	next();
 	}
+
 
 userSchema.methods.addToken = function(token) {	this.tokens.push(token); }
 userSchema.methods.removeToken = function(token) { this.tokens = this.tokens.filter(t => t != token); }
@@ -93,8 +108,15 @@ userSchema.methods.toJSON = function()
 const User = mongoose.model('User', userSchema);
 
 // create a new user
-router.post('/', auth.verifyToken, async (req, res) =>
+router.post('/', auth.verifyToken, User.verify, async (req, res) =>
 	{
+	console.log("User is an admin: " + req.isAdmin);
+	//Verify that we have an admin account
+	if(!req.isAdmin)
+		{
+		return res.status(403).send({error: "You require Administrator privlages to make the requested request!"});
+		}
+
 	//console.log("Creating user: " + req.body.username);
 	if (!req.body.username || !req.body.password  || !req.body.lastName || !req.body.firstName)
 		{
@@ -124,6 +146,7 @@ router.post('/', auth.verifyToken, async (req, res) =>
 			address: '',
 			phone: '',
 			secondaryEmail: '',
+			profilePicture: '',
 			permissions: [],
 			tokens: [],
 			permissions: [],
@@ -170,9 +193,14 @@ router.post('/login', async (req, res) =>
 	});
 
 //Change Permissions
-router.put('/update/security/', auth.verifyToken, securityModel.verify, async (req, res) =>
+router.put('/update/security/', auth.verifyToken, User.verify, securityModel.verify, async (req, res) =>
 	{
 	console.log("Updating Security . . ." + "Removing: " + req.body.addPermission);
+
+	if(!req.isAdmin)
+		{
+		return res.status(403).send({error: "You require Administrator privlages to make the requested request!"});
+		}
 	try
 		{
 		const user = await User.findOne({ username: req.body.username });
@@ -180,7 +208,7 @@ router.put('/update/security/', auth.verifyToken, securityModel.verify, async (r
 		//Can't take the admin out of the admin group
 		if(req.body.permission == 'admin' && req.body.username == 'admin')
 			{
-			return res.sendStatus(403);
+			return res.sendStatus(403).send({error: "Cannot take the admin out of the admin group!"});;
 			}
 
 		if(!user.permissions)
@@ -193,7 +221,7 @@ router.put('/update/security/', auth.verifyToken, securityModel.verify, async (r
 		if(!req.hasPermission)
 			{
 			//console.log("Permission is not there");
-			return res.sendStatus(500);
+			return res.sendStatus(500).send({error: "No Permission specified!"});
 			}
 
 		if (req.body.addPermission)
@@ -201,7 +229,7 @@ router.put('/update/security/', auth.verifyToken, securityModel.verify, async (r
 			if(user.permissions.includes(req.body.permission))
 				{
 				console.log("Already has permission");
-				return res.sendStatus(500);
+				return res.sendStatus(500).send({error: "User already has specified permission!"});;
 				}
 			user.permissions.push(req.body.permission);
 			}
@@ -210,7 +238,7 @@ router.put('/update/security/', auth.verifyToken, securityModel.verify, async (r
 			if(!user.permissions.includes(req.body.permission))
 				{
 				console.log("Can't remove permission that isn't there");
-				return res.sendStatus(500);
+				return res.sendStatus(500).send({error: "The user does not have the specified Permission"});;
 				}
 			for(let i = 0; i < user.permissions.length; i++)
 				{
@@ -229,14 +257,14 @@ router.put('/update/security/', auth.verifyToken, securityModel.verify, async (r
 	catch (error)
 		{
 		console.log(error);
-		return res.sendStatus(500);
+		return res.sendStatus(500).send({error: "Undetermined Error! Report Bug!"});;
 		}
 	});
 
 //Update profile information
-router.put('/update/:id', auth.verifyToken, async (req, res) =>
+router.put('/update/', auth.verifyToken, async (req, res) =>
 	{
-	//console.log("Updating user: " + req.body.username + "/" + req.body.id);
+	//console.log("Updating user: " + req.body.username + "/" + req.body._id);
 	if (!req.body.username || !req.body.lastName || !req.body.firstName)
 		{
 		return res.status(400).send({message: "Username, real name(First and last), and password are required"});
@@ -245,7 +273,7 @@ router.put('/update/:id', auth.verifyToken, async (req, res) =>
 	try
 		{
 		//search for user
-		let user = await User.findOne({ _id: req.body.id });
+		let user = await User.findOne({ _id: req.body._id });
 		
 		if (!user)
 			{
@@ -333,29 +361,14 @@ router.delete("/", auth.verifyToken, async (req, res) =>
 	});
 
 //Delete user
-router.delete("/:id/:password/:repeatPassword/:removalusername", auth.verifyToken, async (req, res) =>
+router.delete("/:id/:removalusername", auth.verifyToken, User.verify, async (req, res) =>
 	{
-	//Check that the passwords match
-	if(req.params.password != req.params.repeatPassword)
+	//Verify that we have an admin account
+	if(req.isAdmin === false)
 		{
-		//console.log("passwd no matchy: A:" + req.params.password + "/ B:" +  req.params.repeatPassword);
-		return res.status(403).send({error: "Your password does not match!"});
-		}
-	//console.log("AdminID: " +  req.params.id);
-
-	const user = await User.findOne({_id:  req.params.id});
-
-	if(!user)
-		{
-		console.log(" - Can't find admin user!")
-		return res.status(403).send({ message: "Cannot find administrating user!"});
+		return res.status(403).send({error: "You require Administrator privlages to make the requested request!"});
 		}
 
-	if (!await user.comparePassword(req.params.password))
-		{
-		//console.log(" - wrong password, is not: " + req.params.password)
-		return res.status(403).send({ message: "Username or Password is wrong"});
-		}
 	try
 		{
 		//console.log("Deleting: " + req.params.removalusername );

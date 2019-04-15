@@ -22,19 +22,18 @@ const mongoose = require('mongoose');
 // connect to the database
 mongoose.connect('mongodb://localhost:27017/bugger', { useNewUrlParser: true });
 
+
+
 const cookieParser = require("cookie-parser");
-app.use(cookieParser());
-
-const projects = require("./projects.js");
-app.use("/api/projects", projects.routes);
-
 const bugs = require("./bugs.js");
-app.use("/api/bugs", bugs);
-
-const users = require("./users.js");
-app.use("/api/users", users.routes);
-
 const permissions = require("./permissions.js");
+const projects = require("./projects.js");
+const users = require("./users.js");
+
+app.use(cookieParser());
+app.use("/api/bugs", bugs);
+app.use("/api/projects", projects.routes);
 app.use("/api/permissions", permissions.routes);
+app.use("/api/users", users.routes);
 
 app.listen(3000, () => console.log('Server listening on port 3000!'));
