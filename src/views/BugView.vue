@@ -2,7 +2,7 @@
 	<div class="content" v-if="bug">
 		<h3>Bug #{{bug._id}}</h3>
 		<hr>
-		<form>
+		<form @submit.prevent="UpdateBug">
 			<div  class = "layout">
 
 				<div class ="interalForm">
@@ -92,7 +92,7 @@
 				<div class ="interalForm">
 					<h4>Bug Discription:</h4>
 					<hr>
-					<textarea name="message" placeholder="Describe the bug" v-model="bug.discription"></textarea>
+					<textarea name="message" placeholder="Describe the bug" v-model="bug.bugDiscrip"></textarea>
 				</div>
 
 			</div>
@@ -109,7 +109,23 @@
 					<br><button>Save Comment</button>
 				</form type="submit" type="button">
 			</div>
-		<div class="comment" v-for="comment in bug.comments"> <h4>- {{comment.usersName}} on {{comment.date}}: </h4> {{comment.comment}} </div>
+
+			<div class="comment" v-for="comment in comments">
+				<center>
+					<h4> {{comment.username}} </h4>
+					<div v-if="comment.profilePicture" class ="imageWrapper">
+						<img :src="comment.profilePicture">
+					</div>
+					<div v-else class ="imageWrapper">
+						<img src="/Profile_icon_Defualt.png">
+					</div>
+				</center>
+				<div>
+				 	{{comment.comment}}
+					<br>- <i>{{comment.date}}</i>
+				</div>
+			</div>
+
 		</div>
 	</div>
 </template>
@@ -125,6 +141,7 @@ export default
 			bug: null,
 			error: '',
 			newComment:'',
+			comments: [],
 			}
 		},
 	async created()
@@ -133,23 +150,76 @@ export default
 		await this.$store.dispatch("GetProjects",);
 		this.GetBugID();
 		this.bug = await this.$store.dispatch("GetBug",this.bugID,);
+		this.GetComments();
 		},
 	computed:
 		{
 		projects() { return this.$store.state.projects; },
+		user() { return this.$store.state.user; },
 		},
 	methods:
 		{
+		async GetComments()
+			{
+			let comments = [];
+			let store = this.$store;
+			this.bug.comments.forEach(async function(element)
+				{
+				let userProfile = await store.dispatch("GetUserProfile", {id : element.userID});
+				let comment = {comment: element.comment, username: userProfile.username, profilePicture: userProfile.profilePicture, date: element.date};
+				comments.push(comment);
+				});
+
+			this.comments = comments;
+			},
 		GetBugID()
 			{
 			let url = window.location.href;
 			this.bugID = url.slice(url.indexOf('#')+1,url.length);
+			},
+		async SendComment()
+			{
+			await this.$store.dispatch("CommentOnBug",{id : this.bug._id, comment: this.newComment, user: this.user._id})
+			this.newComment ='';
+			this.bug = await this.$store.dispatch("GetBug",this.bugID,);
+			this.GetComments();
+			},
+		async UpdateBug()
+			{
+			this.bug = await this.$store.dispatch("UpdateBug",{
+					id : this.bug._id,
+					bugNickname: this.bug.bugNickname,
+					emailReport: this.bug.emailReport,
+					emailPrimary: this.bug.emailPrimary,
+					emailSecondary: this.bug.emailSecondary,
+					emailQA: this.bug.emailQA,
+					status: this.bug.status,
+					priority : this.bug.priority,
+					project: this.bug.project,
+					ver1: this.bug.ver1,
+					ver2: this.bug.ver2,
+					ver3: this.bug.ver3,
+					ver4: this.bug.ver4,
+					fixVer1: this.bug.fixVer1,
+					fixVer2: this.bug.fixVer2,
+					fixVer3: this.bug.fixVer3,
+					fixVer4: this.bug.fixVer4,
+					bugDiscrip: this.bug.bugDiscrip,
+					});
+			//Get the updated bug
+			this.GetBugID();
+			this.bug = await this.$store.dispatch("GetBug",this.bugID,);
 			},
 		}
 	}
 </script>
 
 <style scoped>
+img
+	{
+	height:3em;
+	}
+
 input
 	{
 	margin:2px;
@@ -158,6 +228,11 @@ p
 	{
 	text-align: right;
 	margin:2px;
+	}
+
+p2
+	{
+	text-align: left;
 	}
 
 textarea
@@ -177,17 +252,34 @@ textarea:focus
 
 .comment
 	{
+	display: grid;
+	grid-template-columns: 8em auto;
   	background-color: #9DC5BB;
 	border: 5px solid #5E807F;
 	border-radius:5px;
 	width:50%;
-	padding:1em;
+	padding:.25em;
 	margin:.5em;
+	}
+
+.comment center
+	{
+	width:7em;
 	}
 
 .comment h4
 	{
 	margin:0.25em;
+	}
+
+.imageWrapper
+	{
+	height:2.5em;
+	width:2.5em;
+	background-color: #5E807F !important;
+	border: 3px solid #082D0F;
+	border-radius:500px;
+	overflow: hidden;
 	}
 
 .interalForm

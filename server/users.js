@@ -8,6 +8,22 @@ const auth = require("./auth.js");
 const security = require("./permissions.js");
 const securityModel = security.model;
 
+//Delete old profile pictures
+const fs = require('fs')
+const { promisify } = require('util')
+const unlinkAsync = promisify(fs.unlink)
+
+//Load up profile pictures
+const multer = require('multer')
+const upload = multer(
+	{
+	dest: '../public/images/',
+	limits:
+		{
+    	fileSize: 10000000
+  		}
+	});
+
 const SALT_WORK_FACTOR = 10;
 
 // Users
@@ -300,12 +316,12 @@ router.put('/update/', auth.verifyToken, async (req, res) =>
 	});
 
 //Change Password
-router.put('/update/password/:id', auth.verifyToken, async (req, res) =>
+router.put('/update/password/', auth.verifyToken, User.verify, async (req, res) =>
 	{
+	//console.log("Updating Password for: " + user.username + "-" + req.body.oldPassword);
 	try
 		{
-		const user = await User.findOne({ _id: req.body.id });
-		//console.log("Updating Password for: " + user.username + "-" + req.body.oldPassword);
+		const user = req.user;
 
 		if (!await user.comparePassword(req.body.oldPassword))
 			{
@@ -328,6 +344,75 @@ router.put('/update/password/:id', auth.verifyToken, async (req, res) =>
 		console.log(error);
 		return res.sendStatus(500);
 		}
+	});
+
+//Update the profile pic
+router.put('/update/picture',auth.verifyToken, User.verify, upload.single('photo'), async (req, res) =>
+	{
+	user = req.user;
+
+	//If the picture has been set, clear it out
+	if(user.profilePicture)
+		{
+		try
+			{
+			// Delete the file like normal
+			await unlinkAsync("../public/" + user.profilePicture);
+			}
+		catch (error)
+			{
+			console.log(error);
+			return res.sendStatus(500);
+			}
+		}
+
+	// check that the file is uploaded
+	if (!req.file)
+		{
+		user.profilePicture = '';
+		}
+	else
+		{
+		user.profilePicture = "/images/" + req.file.filename;
+		}
+
+	try
+		{
+		await user.save();
+		return res.sendStatus(200);
+		}
+	catch (error) 
+		{
+		console.log(error);
+		return res.sendStatus(500);
+		}
+	});
+
+// Get current user if logged in.
+router.get('/userprofile/:id', auth.verifyToken, async (req, res) =>
+	{
+	// look up user account
+	const user = await User.findOne({ _id: req.params.id });
+	if (!user)
+		{
+		return res.status(403).send({error: "User ID is invalid"});
+		}
+
+	let username ='';
+
+	if(user.alias)
+		{
+		username = user.alias;
+		}
+	else
+		{
+		username = user.firstName;
+		}
+
+	//Set up the response
+	let responce = {username: username, profilePicture: user.profilePicture};
+
+	return res.send(responce);
 	});
 
 

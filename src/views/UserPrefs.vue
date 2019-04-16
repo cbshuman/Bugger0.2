@@ -1,6 +1,6 @@
 <template>
 	<div class="content">
-		<h3>User Preferances</h3>
+		<h3>User Preferances for {{user.firstName}} {{user.lastName}}</h3>
 		<hr>
 
 		<form @submit.prevent="UpdateUser()">
@@ -10,10 +10,10 @@
 					<hr>
 					<div class="profilePicture">
 						<center>
-							<div v-if="user.profilepic">
-								<img v-blind:src="user.profilepic">
+							<div v-if="user.profilePicture" class ="imageWrapper">
+								<img :src="user.profilePicture">
 							</div>
-							<div v-else>
+							<div v-else class ="imageWrapper">
 								<img src="/Profile_icon_Defualt.png">
 							</div>
 							<br>
@@ -40,11 +40,11 @@
 					<hr>
 					<div class = "layoutInterior">
 						<p>Email/Username:</p>
-						<input placeholder="Email Address" v-model="user.username">
+						<input placeholder="Email Address" v-model="username">
 						<p>First Name:</p>
-						<input placeholder="Real first name" v-model="user.firstName">
+						<input placeholder="Real first name" v-model="firstName">
 						<p>Last Name:</p>
-						<input placeholder="Real last name" v-model="user.lastName">
+						<input placeholder="Real last name" v-model="lastName">
 						<p>Alias:</p>
 						<input placeholder="Name to appear in comments" v-model="user.alias">
 					</div>
@@ -92,7 +92,16 @@ export default
 	name: 'UserPrefs',
 	data()
 		{
-		return {oldPassword: "", newPassword: "", newPasswordRepeat: "", file: null, errorB: "", }
+		return {
+			username: "",
+			firstName: "",
+			lastName: '',
+			oldPassword: "",
+			newPassword: "",
+			newPasswordRepeat: "",
+			file: null,
+			errorB: "",
+			}
 		},
 	components:
 		{
@@ -100,6 +109,9 @@ export default
 	async created()
 		{
 		await this.$store.dispatch("GetUser",);
+		this.username = this.user.username;
+		this.firstName = this.user.firstName;
+		this.lastName = this.user.lastName;
 		},
 	computed:
 		{
@@ -112,22 +124,44 @@ export default
 			{
 			this.file = event.target.files[0]
 			},
-		UpdatePassword()
+		async UpdatePassword()
 			{
+			await this.$store.dispatch("ChangePassword",
+				{
+				_id: this.user._id,
+				oldPassword: this.oldPassword,
+				newPassword: this.newPassword,
+				newPasswordRepeat: this.newPasswordRepeat,
+				});
+			await UpdateUserProfilePic();
+			this.oldPassword = '';
+			this.newPassword = '';
+			this.newPasswordRepeat = '';
+			await this.$store.dispatch("GetUser",);
+			},
+		async UpdateUserProfilePic()
+			{
+			if(this.file)
+				{
+				const formData = new FormData();
+				formData.append('photo', this.file, this.file.name);
+				await this.$store.dispatch("UpdateUserPhoto",formData);
+				}
 			},
 		async UpdateUser()
 			{
 			await this.$store.dispatch("UpdateUser",
 				{
 				_id: this.user._id,
-				username: this.user.username,
-				firstName: this.user.firstName,
-				lastName: this.user.lastName,
+				username: this.username,
+				firstName: this.firstName,
+				lastName: this.lastName,
 				alias: this.user.alias,
 				address: this.user.address,
 				phone: this.user.phone,
 				secondaryEmail: this.user.secondaryEmail,
 				});
+			await this.UpdateUserProfilePic();
 			await this.$store.dispatch("GetUser",);
 			},
 		}
@@ -145,17 +179,14 @@ button
 	margin:2px;
 	}
 
+img
+	{
+	height:6em;
+	}
+
 input
 	{
 	margin:2px;
-	}
-
-img
-	{
-	height:5em;
-	background-color: #5E807F !important;
-	border: 3px solid #082D0F;
-	border-radius:500px;
 	}
 
 p
@@ -167,6 +198,16 @@ p
 .buttonUpload
 	{
 	width:100%;
+	}
+
+.imageWrapper
+	{
+	height:5em;
+	width:5em;
+	background-color: #5E807F !important;
+	border: 3px solid #082D0F;
+	border-radius:500px;
+	overflow: hidden;
 	}
 
 .interalForm

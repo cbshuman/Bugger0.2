@@ -104,6 +104,7 @@ router.get('/:id', auth.verifyToken, User.verify, async (req, res) =>
 		}
 	});
 
+//Update bug
 router.put('/:id', auth.verifyToken, User.verify, async (req, res) =>
 	{
 	//console.log("Looking for bug #" + req.params.id);
@@ -146,37 +147,14 @@ router.put('/comment/:id', auth.verifyToken, User.verify, async (req, res) =>
 	//console.log("Looking for bug #" + req.params.id);
 	try
 		{
-		let bug = await Bug.findOne({ _id: req.params.id	});
+		let bug = await Bug.findOne({ _id: req.params.id });
 		
 		if(!req.body.comment)
 			{
 			res.sendStatus(500);
 			}
 
-		let usersName = req.body.alias;
-
-		if(usersName === '')
-			{
-			//console.log(req.body.first + "/" + req.body.last);
-			if(req.body.first === req.body.last)
-				{
-				usersName = req.body.first;
-				}
-			else
-				{
-				usersName = req.body.first + " " + req.body.last;
-				}
-			}
-
-		//console.log(req.body.first + "/" + req.body.last);
-
-		if(usersName === '')
-			{
-			res.sendStatus(576);
-			return;
-			}
-
-		let comment =  { comment: req.body.comment, usersName: usersName, date: new Date(Date.now()).toLocaleString() };
+		let comment =  { comment: req.body.comment, userID: req.user._id, date: new Date(Date.now()).toLocaleString() };
 		bug.comments.push(comment);
 		bug.save();
 		res.sendStatus(200);

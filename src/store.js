@@ -60,6 +60,18 @@ export default new Vuex.Store(
 				return "";
 				}
 			},
+		async GetUserProfile(context,data)
+			{
+			try
+				{
+				let response = await axios.get("/api/users/userprofile/" + data.id);
+				return response.data;
+				}
+			catch (error)
+				{
+				return "";
+				}
+			},
 		async CreateNewUser(context, data)
 			{
 			try
@@ -89,8 +101,33 @@ export default new Vuex.Store(
 			{
 			try
 				{
-				console.log(this.state.user._id);
 				let response = await axios.put("/api/users/update/", data);
+				return "";
+				}
+			catch(error)
+				{
+				console.log(error);
+				return error;
+				}
+			},
+		async UpdateUserPhoto(context,data)
+			{
+			try
+				{
+				let response = await axios.put("/api/users/update/picture", data);
+				return "";
+				}
+			catch(error)
+				{
+				console.log(error);
+				return error;
+				}
+			},
+		async ChangePassword(context,data)
+			{
+			try
+				{
+				let response = await axios.put("/api/users/update/password/", data);
 				return "";
 				}
 			catch(error)
@@ -173,6 +210,32 @@ export default new Vuex.Store(
 			catch (error)
 				{
 				console.log(error);
+				}
+			},
+		async CommentOnBug(context,data)
+			{
+			try
+				{
+				let response = await axios.put("/api/bugs/comment/" + data.id ,data);
+				return response.data;
+				}
+			catch (error)
+				{
+				console.log(error);
+				return "Error: " + error.response.data.message;
+				}
+			},
+		async UpdateBug(context,data)
+			{
+			try
+				{
+				let response = await axios.put("/api/bugs/" + data.id ,data);
+				return response.data;
+				}
+			catch (error)
+				{
+				console.log(error);
+				return "Error: " + error.response.data.message;
 				}
 			},
 		async GetBug(context,bugID)
