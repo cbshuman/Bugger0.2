@@ -8,10 +8,16 @@
 					<h4>Project Permissions:</h4>
 					<hr>
 					<div class = "layoutInterior">
-						<p>Project names:</p> 
-						<input placeholder="Project Name" v-model="securityProject">
+						<p>Project names:</p>
+						<div>
+							<input v-model="securityProject" placeholder="Select desired permission . . .">
+							<autoComplete :collection="projectNames" :targetValue="securityProject" @SetValue="GetSecurityProject" />
+						</div>
 						<p>Security Group:</p>
-						<input placeholder="Security Group">
+						<div>
+							<input v-model="newPermission" placeholder="Select desired permission . . .">
+							<autoComplete :collection="permissionNames" :targetValue="newPermission" @SetValue="GetNewPermission" />
+						</div>
 					</div>
 					<button> Add Security Group </button> | <button> Remove Security Group </button>
 				</form>
@@ -21,11 +27,13 @@
 					<hr>
 					<div class = "layoutInterior">
 						<p>Target Project:</p> 
-						<input placeholder="Target project name">
+						<div>
+							<input v-model="deleteProject" placeholder="Select project to delete">
+							<autoComplete :collection="projectNames" :targetValue="deleteProject" @SetValue="GetRemoveProject" />
+						</div>
 					<p><button>Delete Project</button></p>
 					</div>
 				</form>
-
 
 			</div>
 		</div>
@@ -39,6 +47,7 @@
 
 <script>
 import ProjectList from '@/components/ProjectList.vue'
+import AutoComplete from '@/components/AutoCompleteForm.vue'
 
 export default
 	{
@@ -47,22 +56,28 @@ export default
 		{
 		return {
 			securityProject: '',
-			
 			newPermission: '',
-			newPermDisc: '',
+			deleteProject: '',
 			}
-		},
-	components:
-		{
-		ProjectList,
-		},
-	async created()
-		{
-		await this.$store.dispatch("GetProjects",);
 		},
 	computed:
 		{
 		projects() { return this.$store.state.projects; },
+		permissions() { return this.$store.state.permissions; },
+		projectNames() { return this.$store.state.projectNames;  },
+		permissionNames() { return this.$store.state.permissionNames; },
+		},
+	components:
+		{
+		ProjectList,
+		AutoComplete,
+		},
+	async created()
+		{
+		await this.$store.dispatch("GetProjects",);
+		await this.$store.dispatch("GetPermissions",);
+		await this.$store.dispatch("GetProjectNames",this.projects);
+		await this.$store.dispatch("GetPermissionNames",this.permissions);
 		},
 	methods:
 		{
@@ -71,6 +86,21 @@ export default
 			},
 		async AddSecurityProject()
 			{
+			},
+		GetSecurityProject(valueIn)
+			{
+			this.securityProject = valueIn;
+			return(this.securityProject);
+			},
+		GetNewPermission(valueIn)
+			{
+			this.newPermission = valueIn;
+			return(this.newPermission);
+			},
+		GetRemoveProject(valueIn)
+			{
+			this.deleteProject = valueIn;
+			return(this.deleteProject);
 			},
 		}
 	}
@@ -93,4 +123,4 @@ p
 	margin:2px;
 	}
 
-</style scoped>
+</style>

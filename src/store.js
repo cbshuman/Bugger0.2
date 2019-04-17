@@ -9,8 +9,12 @@ export default new Vuex.Store(
 	state:
 		{
 		user: null,
+		userProfiles:[],
+		userNames:[],
 		projects: [],
+		projectNames: [],
 		permissions: [],
+		permissionNames: [],
 		bugs : [],
 		},
 	mutations:
@@ -19,13 +23,29 @@ export default new Vuex.Store(
 			{
 			state.user = user;
 			},
+		setUserProfiles(state,users)
+			{
+			state.userProfiles = users;
+			},
+		setUserNames(state,users)
+			{
+			state.userNames = users;
+			},
 		setProjects(state, projects)
 			{
 			state.projects = projects;
 			},
+		setProjectNames(state, projectNames)
+			{
+			state.projectNames = projectNames;
+			},
 		setPermissions(state, permissions)
 			{
 			state.permissions = permissions;
+			},
+		setPermissionNames(state, permissionNames)
+			{
+			state.permissionNames = permissionNames;
 			},
 		setBugs(state, bugs)
 			{
@@ -65,6 +85,45 @@ export default new Vuex.Store(
 			try
 				{
 				let response = await axios.get("/api/users/userprofile/" + data.id);
+				return response.data;
+				}
+			catch (error)
+				{
+				return "";
+				}
+			},
+		async GetUserProfiles(context)
+			{
+			//console.log("Getting user profiles");
+			try
+				{
+				let response = await axios.get("/api/users/allusers/");
+				context.commit('setUserProfiles', response.data);
+				return response.data;
+				}
+			catch (error)
+				{
+				return "";
+				}
+			},
+		async GetUserNames(context,users)
+			{
+			let returnValue = [];
+			if(users)
+				{
+				for(let i = 0; i < users.length; i++)
+					{
+					returnValue.push(users[i].username)
+					}
+				}
+			context.commit('setUserNames', returnValue);
+			return"";
+			},
+		async DisableUserAccount(context,data)
+			{
+			try
+				{
+				let response = await axios.delete("/api/users/" + data.id);
 				return response.data;
 				}
 			catch (error)
@@ -141,7 +200,15 @@ export default new Vuex.Store(
 			try
 				{
 				let response = await axios.put("/api/users/update/security/",data);
-				return "Successfully Added Permission!";
+
+				if(data.addPermission)
+					{
+					return "Successfully Added Permission!";
+					}
+				else
+					{
+					return "Successfully Removed Permission!";
+					}
 				}
 			catch (error)
 				{
@@ -172,6 +239,19 @@ export default new Vuex.Store(
 				{
 				console.log(error);
 				}
+			},
+		GetPermissionNames(context, permissions)
+			{
+			let returnValue = [];
+			if(permissions)
+				{
+				for(let i = 0; i < permissions.length; i++)
+					{
+					returnValue.push(permissions[i].permissionName)
+					}
+				}
+			context.commit('setPermissionNames', returnValue);
+			return"";
 			},
 		async CreatePermission(context, data)
 			{
@@ -230,7 +310,7 @@ export default new Vuex.Store(
 			try
 				{
 				let response = await axios.put("/api/bugs/" + data.id ,data);
-				return response.data;
+				return "Bug successfully updated!";
 				}
 			catch (error)
 				{
@@ -287,6 +367,19 @@ export default new Vuex.Store(
 				{
 				console.log(error);
 				}
+			},
+		GetProjectNames(context,projects)
+			{
+			let returnValue = [];
+			if(projects)
+				{
+				for(let i = 0; i < projects.length; i++)
+					{
+					returnValue.push(projects[i].projectName)
+					}
+				}
+			context.commit('setProjectNames', returnValue);
+			return(returnValue);
 			},
 		async CreateProject(context,data)
 			{

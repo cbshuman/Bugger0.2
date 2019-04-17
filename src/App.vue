@@ -94,6 +94,13 @@ h4
 	margin-bottom:0px;
 	}
 
+input
+	{
+	margin:2px;
+	height:1.25em;
+	border-radius:5px;
+	}
+
 .content
 	{
 	margin:1em;

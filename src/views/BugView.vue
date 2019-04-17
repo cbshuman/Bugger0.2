@@ -97,7 +97,8 @@
 
 			</div>
 		
-		<br><button  type="submit">Save Changes</button> <p v-if="error" class="error">{{error}}</p>
+		<br><button  type="submit">Save Changes</button>
+		<div v-if="error" class="error">{{error}}</div>
 		</form>		
 
 		<div class = "comments">
@@ -186,7 +187,7 @@ export default
 			},
 		async UpdateBug()
 			{
-			this.bug = await this.$store.dispatch("UpdateBug",{
+			this.error = await this.$store.dispatch("UpdateBug",{
 					id : this.bug._id,
 					bugNickname: this.bug.bugNickname,
 					emailReport: this.bug.emailReport,

@@ -38,6 +38,7 @@ const userSchema = new mongoose.Schema(
 	phone: String,
 	secondaryEmail: String,
 	profilePicture: String,
+	enabled: Boolean,
 	permissions: [],
 	tokens: [],
 	});
@@ -80,6 +81,27 @@ userSchema.methods.comparePassword = async function(password)
 		{
 		return false;
 		}
+	};
+
+userSchema.methods.comparePermissions = function(permissions)
+	{
+	//Admins can see everything
+	//console.log(permissions);
+	if(!this.permissions.includes('admin'))
+		{
+		//Check the list of permissions
+		for(let i = 0; i < permissions.length; i++)
+			{
+			//console.log("Checking permission: " + permissions[i]);
+			//If you don't have a particular permission, return false
+			if(!this.permissions.includes(permissions[i]))
+				{
+				//console.log("User doesn't have permission:" + permissions[i]);
+				return(false);
+				}
+			}
+		}
+	return(true);
 	};
 
 // middleware to validate user account
@@ -163,6 +185,7 @@ router.post('/', auth.verifyToken, User.verify, async (req, res) =>
 			phone: '',
 			secondaryEmail: '',
 			profilePicture: '',
+			enabled : true,
 			permissions: [],
 			tokens: [],
 			permissions: [],
@@ -211,7 +234,7 @@ router.post('/login', async (req, res) =>
 //Change Permissions
 router.put('/update/security/', auth.verifyToken, User.verify, securityModel.verify, async (req, res) =>
 	{
-	console.log("Updating Security . . ." + "Removing: " + req.body.addPermission);
+	//console.log("Updating Security . . ." + "Adding: " + req.body.addPermission);
 
 	if(!req.isAdmin)
 		{
@@ -232,12 +255,12 @@ router.put('/update/security/', auth.verifyToken, User.verify, securityModel.ver
 			user.permissions = '';
 			}
 
-		console.log(req.hasPermission);
+		//console.log(req.hasPermission);
 	
 		if(!req.hasPermission)
 			{
 			//console.log("Permission is not there");
-			return res.sendStatus(500).send({error: "No Permission specified!"});
+			return res.sendStatus(500);
 			}
 
 		if (req.body.addPermission)
@@ -245,7 +268,7 @@ router.put('/update/security/', auth.verifyToken, User.verify, securityModel.ver
 			if(user.permissions.includes(req.body.permission))
 				{
 				console.log("Already has permission");
-				return res.sendStatus(500).send({error: "User already has specified permission!"});;
+				return res.sendStatus(500);
 				}
 			user.permissions.push(req.body.permission);
 			}
@@ -273,7 +296,7 @@ router.put('/update/security/', auth.verifyToken, User.verify, securityModel.ver
 	catch (error)
 		{
 		console.log(error);
-		return res.sendStatus(500).send({error: "Undetermined Error! Report Bug!"});;
+		return res.sendStatus(500);
 		}
 	});
 
@@ -388,7 +411,7 @@ router.put('/update/picture',auth.verifyToken, User.verify, upload.single('photo
 		}
 	});
 
-// Get current user if logged in.
+// Get a user's profile - will only return generic information
 router.get('/userprofile/:id', auth.verifyToken, async (req, res) =>
 	{
 	// look up user account
@@ -413,6 +436,21 @@ router.get('/userprofile/:id', auth.verifyToken, async (req, res) =>
 	let responce = {username: username, profilePicture: user.profilePicture};
 
 	return res.send(responce);
+	});
+
+// Get user profiles
+router.get('/allusers', auth.verifyToken, async (req, res) =>
+	{
+	// look up user account
+	const users = await User.find();
+
+	let response = [];
+	users.forEach(async function(user)
+		{
+		response.push({username: user.username,first: user.firstName, last: user.lastName,alias: user.alias, profilePicture: user.profilePicture, permissions: user.permissions, enabled: user.enabled});
+		});
+
+	return res.send(response);
 	});
 
 
@@ -445,8 +483,8 @@ router.delete("/", auth.verifyToken, async (req, res) =>
 	res.sendStatus(200);
 	});
 
-//Delete user
-router.delete("/:id/:removalusername", auth.verifyToken, User.verify, async (req, res) =>
+//Disable/Enable user
+router.delete("/:removalusername", auth.verifyToken, User.verify, async (req, res) =>
 	{
 	//Verify that we have an admin account
 	if(req.isAdmin === false)
@@ -457,7 +495,15 @@ router.delete("/:id/:removalusername", auth.verifyToken, User.verify, async (req
 	try
 		{
 		//console.log("Deleting: " + req.params.removalusername );
-		await User.deleteOne({ username : req.params.removalusername });
+		const user = await User.findOne({ username : req.params.removalusername });
+
+		if(user.username == 'admin')
+			{
+			return res.sendStatus(500);
+			}
+
+		user.enabled = !user.enabled;
+
 		return res.sendStatus(200);
 		}
 	catch (error)

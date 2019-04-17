@@ -32,7 +32,7 @@ export default
 		{
 		TogglePermissions()
 			{
-			console.log(this.permissions);
+			//console.log(this.permissions);
 			this.showPermissions = !this.showPermissions;
 			},
 		},

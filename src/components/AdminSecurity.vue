@@ -20,7 +20,10 @@
 				<hr>
 				<div class = "layoutInterior">
 					<p>Target Group:</p> 
-					<input placeholder="Target group">
+					<div>
+						<input v-model="deletePermission" placeholder="Search">
+						<autoComplete :collection="permissionNames" :targetValue="deletePermission" @SetValue="GetRemovePermission" />
+					</div>
 				<p><button> Remove Security Group </button></p>
 				</div>
 			</form>
@@ -31,6 +34,7 @@
 
 <script>
 import SecurityList from '@/components/SecurityList.vue'
+import AutoComplete from '@/components/AutoCompleteForm.vue'
 
 export default
 	{
@@ -40,20 +44,24 @@ export default
 		return {
 			newPermission: '',
 			newPermDisc: '',
+			deletePermission: '',
 			}
 		},
 	components:
 		{
 		SecurityList,
+		AutoComplete,
 		},
 	async created()
 		{
 		await this.$store.dispatch("GetProjects",);
 		await await this.$store.dispatch("GetPermissions",);
+		await this.$store.dispatch("GetPermissionNames",this.permissions);
 		},
 	computed:
 		{
 		permissions() { return this.$store.state.permissions; },
+		permissionNames() { return this.$store.state.permissionNames; },
 		},
 	methods:
 		{
@@ -70,6 +78,11 @@ export default
 				{
 				console.log(error);
 				}
+			},
+		GetRemovePermission(valueIn)
+			{
+			this.deletePermission = valueIn;
+			return(this.deletePermission);
 			},
 		async RemovePermission()
 			{

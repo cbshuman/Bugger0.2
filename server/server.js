@@ -22,8 +22,6 @@ const mongoose = require('mongoose');
 // connect to the database
 mongoose.connect('mongodb://localhost:27017/bugger', { useNewUrlParser: true });
 
-
-
 const cookieParser = require("cookie-parser");
 const bugs = require("./bugs.js");
 const permissions = require("./permissions.js");

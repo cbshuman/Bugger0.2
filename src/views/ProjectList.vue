@@ -4,7 +4,7 @@
 		<hr>
 		<projectList :projects ="projects" :showProjects = "true" />
 		<button @click="ToggleForm">Create New Project</button>
-	
+
 		<div  v-if="showProjectForm">
 			<ProjectForm :ToggleForm="ToggleForm" />
 		</div>

@@ -44,12 +44,25 @@ bugSchema.set('toJSON', { virtuals: true });
 
 const Bug = mongoose.model('Bugs', bugSchema);
 
-router.get('/', auth.verifyToken, async (req, res) =>
+router.get('/', auth.verifyToken, User.verify, async (req, res) =>
 	{
 	try
 		{
 		let bugs = await Bug.find();
-		return res.send(bugs);
+		let returnList = [];
+
+		for(let i = 0; i < bugs.length; i++)
+			{
+			let project = await Project.findOne({ projectName: bugs[i].project});
+			//console.log(req.user.comparePermissions(project.permissions));
+			if(req.user.comparePermissions(project.permissions))
+				{
+				//console.log("Added bug because permissions are allowed")
+				returnList.push(bugs[i]);
+				}
+			}
+		//console.log(returnList);
+		return res.send(returnList);
 		}
 	catch (error)
 		{

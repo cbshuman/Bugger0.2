@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<h4  v-if="!showProjects"> Projects: [ <a @click="ToggleProjects">Show</a>	] </h4>
+		<h4  v-if="!display"> Projects: [ <a @click="ToggleProjects">Show</a>	] </h4>
 		<h4  v-else> Projects: [ <a @click="ToggleProjects">Hide</a>	] </h4>
 		<table>
 			<tr>
@@ -10,7 +10,7 @@
 				<th>Security Groups</th>
 				<th>Discription</th>
 			</tr>
-			<tr v-for="project in projects" v-if="showProjects">
+			<tr v-for="project in projects" v-if="display">
 				<td>{{project.projectName}} </td>
 				<td>{{project.bugs.length}}</td>
 				<td>{{project.defaultAssignee}}</td>
@@ -30,11 +30,21 @@ export default
 		projects: Array,
 		showProjects: Boolean,
 		},
+	created()
+		{
+		this.display = this.showProjects;
+		},
+	data()
+		{
+		return{
+			display : true,
+			}
+		},
 	methods:
 		{
 		ToggleProjects()
 			{
-			this.showProjects = !this.showProjects;
+			this.display = !this.display;
 			},
 		},
 	}

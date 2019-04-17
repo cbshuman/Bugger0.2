@@ -25,10 +25,17 @@ projectSchema.set('toJSON', { virtuals: true });
 // middleware to find the default contact
 projectSchema.statics.defaultContact = async function(req, res, next)
 	{
-	console.log("Setting the default contact . . . for: " + req.body.project);
-	// look up user account
+	//console.log("Setting the default contact . . . for: " + req.body.project);
+	// look up the project
 	const project = await Project.findOne({ projectName: req.body.project});
-	console.log(project.defaultAssignee);
+
+	//We have a problem if the project does not exist
+	if(!project)
+		{
+		console.log("Project does not exist");
+		return res.sendStatus(500);
+		}
+	//console.log(project.defaultAssignee);
 
 	req.defaultcontact = project.defaultAssignee;
 	next();
@@ -42,7 +49,20 @@ router.get('/', auth.verifyToken, User.verify, async (req, res) =>
 	try
 		{
 		let projects = await Project.find();
-		return res.send(projects);
+
+		let returnList = [];
+
+		projects.forEach(async function(project)
+			{
+			//console.log(req.user.comparePermissions(project.permissions));
+			if(req.user.comparePermissions(project.permissions))
+				{
+				//console.log("Added project because permissions are allowed")
+				returnList.push(project);
+				}
+			});
+
+		return res.send(returnList);
 		}
 	catch (error)
 		{
