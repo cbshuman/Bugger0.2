@@ -50,7 +50,6 @@ userSchema.pre('save', async function(next)
 		{
 		return next();
 		}
-
 	try
 		{
 		// generate a salt
@@ -148,7 +147,7 @@ const User = mongoose.model('User', userSchema);
 // create a new user
 router.post('/', auth.verifyToken, User.verify, async (req, res) =>
 	{
-	console.log("User is an admin: " + req.isAdmin);
+	//console.log("User is an admin: " + req.isAdmin);
 	//Verify that we have an admin account
 	if(!req.isAdmin)
 		{
@@ -188,7 +187,6 @@ router.post('/', auth.verifyToken, User.verify, async (req, res) =>
 			enabled : true,
 			permissions: [],
 			tokens: [],
-			permissions: [],
 			});
 		await user.save();
 		return res.send(user);
@@ -301,12 +299,17 @@ router.put('/update/security/', auth.verifyToken, User.verify, securityModel.ver
 	});
 
 //Update profile information
-router.put('/update/', auth.verifyToken, async (req, res) =>
+router.put('/update/', auth.verifyToken, User.verify, async (req, res) =>
 	{
 	//console.log("Updating user: " + req.body.username + "/" + req.body._id);
 	if (!req.body.username || !req.body.lastName || !req.body.firstName)
 		{
 		return res.status(400).send({message: "Username, real name(First and last), and password are required"});
+		}
+
+	if(req.user.username === 'admin')
+		{
+		return res.status(400).send({message: "Cannot modify the admin account settings"});
 		}
 
 	try
@@ -341,7 +344,7 @@ router.put('/update/', auth.verifyToken, async (req, res) =>
 //Change Password
 router.put('/update/password/', auth.verifyToken, User.verify, async (req, res) =>
 	{
-	//console.log("Updating Password for: " + user.username + "-" + req.body.oldPassword);
+	console.log("Updating Password for: " + req.user.username + "-" + req.body.oldPassword);
 	try
 		{
 		const user = req.user;
@@ -354,11 +357,12 @@ router.put('/update/password/', auth.verifyToken, User.verify, async (req, res) 
 		if(req.body.newPassword !== req.body.newPasswordRepeat)
 			{
 			//console.log(" - new passwords do not match")
-			return res.status(403).send({ message: "Passwords do not match"});
+			return res.status(403).send({ message: "New passwords do not match"});
 			}
 
 		user.password = req.body.newPassword;
 
+		console.log("Password updated!");
 		await user.save();
 		return res.send(user)
 		}
@@ -375,7 +379,7 @@ router.put('/update/picture',auth.verifyToken, User.verify, upload.single('photo
 	user = req.user;
 
 	//If the picture has been set, clear it out
-	if(user.profilePicture)
+	if(user.profilePicture)                                                                                        
 		{
 		try
 			{
@@ -486,24 +490,31 @@ router.delete("/", auth.verifyToken, async (req, res) =>
 //Disable/Enable user
 router.delete("/:removalusername", auth.verifyToken, User.verify, async (req, res) =>
 	{
+	//console.log("Totally disabling a user man!");
 	//Verify that we have an admin account
 	if(req.isAdmin === false)
 		{
+		//console.log("You can't do that man!");
 		return res.status(403).send({error: "You require Administrator privlages to make the requested request!"});
 		}
 
 	try
 		{
-		//console.log("Deleting: " + req.params.removalusername );
+		//console.log("Disabling: " + req.params.removalusername );
 		const user = await User.findOne({ username : req.params.removalusername });
 
 		if(user.username == 'admin')
 			{
+			console.log("You can't disable the admin dude!");
 			return res.sendStatus(500);
 			}
 
+		//console.log("Here's his status: " + user.enabled);
+
 		user.enabled = !user.enabled;
 
+		await user.save();
+		console.log("It's done man: " + user.enabled);
 		return res.sendStatus(200);
 		}
 	catch (error)

@@ -21,7 +21,7 @@
 					</div>
 				</form>
 
-				<form>
+				<form @submit.prevent="DisableUser">
 					<h4>Disable User</h4>
 					<hr>
 					<div class = "layoutInterior">
@@ -127,10 +127,27 @@ export default
 			this.error = await this.$store.dispatch("CreateNewUser",
 				{
 				username: this.newUsername,
-				firstName: this.newPassword,
-				lastName: this.newFirst,
-				password: this.newLast,
+				firstName: this.newFirst,
+				lastName: this.newLast,
+				password:  this.newPassword,
 				});
+
+			//Reseting
+			this.newUsername = '';
+			this.newFirst = '';
+			this.newLast = '';
+			this.newPassword = '';
+
+			//Update components
+			await this.$store.dispatch("GetUserProfiles",);
+			await this.$store.dispatch("GetUserNames",this.userProfiles);
+			},
+		async DisableUser()
+			{
+			//console.log("disable engaged");
+			this.error = await this.$store.dispatch("DisableUserAccount", { username: this.deleteUsername, });
+			this.deleteUsername = '';
+			//Update components
 			await this.$store.dispatch("GetUserProfiles",);
 			await this.$store.dispatch("GetUserNames",this.userProfiles);
 			},
@@ -155,6 +172,10 @@ export default
 
 
 <style scoped>
+input
+	{
+	width:100%;
+	}
 form
 	{
 	padding: .25em;

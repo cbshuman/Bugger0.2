@@ -121,9 +121,10 @@ export default new Vuex.Store(
 			},
 		async DisableUserAccount(context,data)
 			{
+			//console.log(data);
 			try
 				{
-				let response = await axios.delete("/api/users/" + data.id);
+				let response = await axios.delete("/api/users/" + data.username);
 				return response.data;
 				}
 			catch (error)
@@ -161,12 +162,12 @@ export default new Vuex.Store(
 			try
 				{
 				let response = await axios.put("/api/users/update/", data);
-				return "";
+				return "Successfully changed user account!";
 				}
 			catch(error)
 				{
 				console.log(error);
-				return error;
+				return error.response.data.message;
 				}
 			},
 		async UpdateUserPhoto(context,data)
@@ -191,8 +192,8 @@ export default new Vuex.Store(
 				}
 			catch(error)
 				{
-				console.log(error);
-				return error;
+				//console.log(error.message);
+				return error.response.data.message;
 				}
 			},
 		async UpdateUserPermissions(context,data)
@@ -212,7 +213,7 @@ export default new Vuex.Store(
 				}
 			catch (error)
 				{
-				return (this.error = error);
+				return error.response.data.message;
 				}
 			},
 		async LogOut(context)

@@ -10,7 +10,10 @@
 				<p>Project Name:</p>
 				<input v-model="projectName" placeholder="Enter the name of the new project">
 				<p>Default Bug Contact:</p>
-				<input v-model="defaultContact" placeholder="Enter the name of the default bug contact">
+				<div>
+					<input placeholder="Enter the name of the default bug contact" v-model="defaultContact">
+					<autoComplete :collection="userNames" :targetValue="defaultContact" @SetValue="GetDefaultContact" />
+				</div>
 				<p>Project Discription:</p>
 				<textarea name="message" placeholder="Describe the project using as many details as possible" v-model="projDiscrip"></textarea>
 				<p>Security Groups:</p>
@@ -19,12 +22,12 @@
 						<center>Selected</center>
 						<div class="securityGroups">
 							<div class="securityItem" v-for="permission in permissionsAvaliable" @click="MoveSecurityGroup(permissionsSelected,permissionsAvaliable,permission)">
-							{{permission.permissionName}}
+							{{permission}}
 							</div>
 						</div>
 						<div overflow-y: scroll class="securityGroups">
 							<div class="securityItem" v-for="permission in permissionsSelected" @click="MoveSecurityGroup(permissionsAvaliable,permissionsSelected,permission)">
-							{{permission.permissionName}}
+							{{permission}}
 							</div>
 						</div>					
 					</div>
@@ -42,6 +45,8 @@
 </template>
 
 <script>
+import AutoComplete from '@/components/AutoCompleteForm.vue'
+
 export default
 	{
 	name: 'bugForm',
@@ -55,17 +60,38 @@ export default
 			permissionsSelected: [],
 			}
 		},
+	components:
+		{
+		AutoComplete,
+		},
 	async created()
 		{
 		await this.$store.dispatch("GetProjects",);
-		await await this.$store.dispatch("GetPermissions",);
-		this.permissionsAvaliable = this.permissions;
+
+		//Permissions
+		await this.$store.dispatch("GetPermissions",);
+		await this.$store.dispatch("GetPermissionNames",this.permissions);
+
+		//User info
+		await this.$store.dispatch("GetUserProfiles",);
+		await this.$store.dispatch("GetUserNames",this.userProfiles);
+
+		console.log(this.permissionNames);
+
+		this.permissionsAvaliable = this.permissionNames;
 		this.project = this.projects[0];
 		},
 	computed:
 		{
 		projects() { return this.$store.state.projects; },
+
+		//Permissions
 		permissions() { return this.$store.state.permissions; },
+		permissionNames() { return this.$store.state.permissionNames; },
+
+		//User info for auto complete
+		userProfiles() { return this.$store.state.userProfiles; },
+		userNames() { return this.$store.state.userNames; },
 		},
 	props:
 		{
@@ -75,12 +101,7 @@ export default
 		{
 		async CreateProject()
 			{
-			let finalPermissions = [];
-			for(let i = 0; i < this.permissionsSelected.length; i++)
-				{
-				finalPermissions.push(this.permissionsSelected[i].permissionName);
-				}
-			await this.$store.dispatch("CreateProject",{ projectName: this.projectName,	projectDisc: this.projDiscrip, defaultAssignee: this.defaultContact, permissions: finalPermissions,});
+			await this.$store.dispatch("CreateProject",{ projectName: this.projectName,	projectDisc: this.projDiscrip, defaultAssignee: this.defaultContact, permissions: this.permissionsSelected,});
 			await this.$store.dispatch("GetProjects",);
 			this.ToggleForm();
 			},
@@ -92,6 +113,12 @@ export default
 				{
 				from.splice(index, 1);
 				}
+			to = to.sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase())});
+			from = from.sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase())});;
+			},
+		GetDefaultContact(input)
+			{
+			this.defaultContact = input;
 			},
 		}
 	}
@@ -101,6 +128,7 @@ export default
 input
 	{
 	margin:2px;
+	width:100%;
 	}
 
 button
@@ -177,6 +205,7 @@ textarea:focus
 
 .securityItem:hover
 	{
+	color: white;
 	background-color: #17B890;
 	border: 3px solid #17B890;
 	}

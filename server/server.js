@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require("body-parser");
+const startup = require("./startupscript.js");
 
 const multer = require('multer')
 const upload = multer(
@@ -33,5 +34,15 @@ app.use("/api/bugs", bugs);
 app.use("/api/projects", projects.routes);
 app.use("/api/permissions", permissions.routes);
 app.use("/api/users", users.routes);
+
+try
+	{
+	startup.Statup();
+	}
+catch(error)
+	{
+	console.log(error);
+	console.log("Cannot Start Server!");
+	}
 
 app.listen(3000, () => console.log('Server listening on port 3000!'));

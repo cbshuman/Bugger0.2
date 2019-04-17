@@ -52,6 +52,7 @@
 
 			</div>
 		<button>Save Changes</button>
+		<div>{{ errorA }}</div>
 		</form>
 
 		<div class = "layout">
@@ -79,7 +80,8 @@
 					<p>Confirm New Password:</p>
 					<input placeholder="New Password" type="password" v-model="newPasswordRepeat">
 					<p>Confirm Change Password:</p>
-					<button type="submit">Change Password</button> <p v-if="errorB" class="errorB">{{errorB}}</p>
+					<button type="submit">Change Password</button>
+					<p></p><div v-if="errorB" class="errorB">{{errorB}}</div>
 				</form>
 			</div>
 		</div>
@@ -100,6 +102,7 @@ export default
 			newPassword: "",
 			newPasswordRepeat: "",
 			file: null,
+			errorA: "",
 			errorB: "",
 			}
 		},
@@ -126,14 +129,13 @@ export default
 			},
 		async UpdatePassword()
 			{
-			await this.$store.dispatch("ChangePassword",
+			this.errorB = await this.$store.dispatch("ChangePassword",
 				{
 				_id: this.user._id,
 				oldPassword: this.oldPassword,
 				newPassword: this.newPassword,
 				newPasswordRepeat: this.newPasswordRepeat,
 				});
-			await UpdateUserProfilePic();
 			this.oldPassword = '';
 			this.newPassword = '';
 			this.newPasswordRepeat = '';
@@ -150,7 +152,7 @@ export default
 			},
 		async UpdateUser()
 			{
-			await this.$store.dispatch("UpdateUser",
+			this.errorA = await this.$store.dispatch("UpdateUser",
 				{
 				_id: this.user._id,
 				username: this.username,
