@@ -1,5 +1,11 @@
 # bugger0.2
 
+To log into Bugger ver0.2, use the following:
+
+username: admin
+password: admin
+
+
 ## Project setup
 ```
 npm install
