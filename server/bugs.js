@@ -7,42 +7,10 @@ const auth = require("./auth.js");
 const users = require("./users.js");
 const User = users.model;
 
-//Project data
-const projects = require("./projects.js");
-const Project = projects.model;
-
-//Project Schema
-const bugSchema = new mongoose.Schema(
-	{
-	bugNickname: String,
-	emailReport: String,
-	emailPrimary: String,
-	emailSecondary: String,
-	emailQA: String,
-	dateCreated: String,
-	dateModified: String,
-	status: String,
-	priority : String,
-	project: String,
-	ver1: String,
-	ver2: String,
-	ver3: String,
-	ver4: String,
-	fixVer1: String,
-	fixVer2: String,
-	fixVer3: String,
-	fixVer4: String,
-	bugDiscrip: String,
-	comments: [],
-	});
-
-// create a virtual paramter that turns the default _id field into id
-bugSchema.virtual('id').get(function() { return this._id.toHexString(); });
-
-// Ensure virtual fields are serialised when we turn this into a JSON object
-bugSchema.set('toJSON', { virtuals: true });
-
-const Bug = mongoose.model('Bugs', bugSchema);
+//Models
+const models = require("./models.js");
+const Bug = models.modelBug;
+const Project = models.modelProject;
 
 router.get('/', auth.verifyToken, User.verify, async (req, res) =>
 	{
@@ -216,4 +184,4 @@ router.post('/', auth.verifyToken, User.verify, Project.defaultContact, async (r
 		}
 	});
 
-module.exports = router;
+module.exports = { model: Bug, routes: router, }

@@ -382,6 +382,19 @@ export default new Vuex.Store(
 			context.commit('setProjectNames', returnValue);
 			return(returnValue);
 			},
+		async DeleteProject(context,project)
+			{
+			try
+				{
+				let response = await axios.delete("/api/projects/" + project);
+				return response.data;
+				}
+			catch (error)
+				{
+				console.log(error);
+				return error.response.data.message;
+				}
+			},
 		async CreateProject(context,data)
 			{
 			try

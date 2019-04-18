@@ -13,7 +13,6 @@ export default
 	props:
 		{
 		collection: Array,
-		cleared : Boolean,
 		targetValue: String,
 		},
 	data()
@@ -32,12 +31,6 @@ export default
 			else
 				{
 				return([]);
-				}
-			},
-		hasCleared()
-			{
-			if(targetValue != '' && cleared == true)
-				{
 				}
 			},
 		},

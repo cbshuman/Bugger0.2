@@ -7,42 +7,10 @@ const auth = require("./auth.js");
 const users = require("./users.js");
 const User = users.model;
 
-//Project Schema
-const projectSchema = new mongoose.Schema(
-	{
-	projectName: String,
-	projectDisc: String,
-	defaultAssignee : String,
-	permissions: [],
-	});
-
-// create a virtual paramter that turns the default _id field into id
-projectSchema.virtual('id').get(function() { return this._id.toHexString(); });
-
-// Ensure virtual fields are serialised when we turn this into a JSON object
-projectSchema.set('toJSON', { virtuals: true });
-
-// middleware to find the default contact
-projectSchema.statics.defaultContact = async function(req, res, next)
-	{
-	//console.log("Setting the default contact . . . for: " + req.body.project);
-	// look up the project
-	const project = await Project.findOne({ projectName: req.body.project});
-
-	//We have a problem if the project does not exist
-	if(!project)
-		{
-		console.log("Project does not exist");
-		return res.sendStatus(500);
-		}
-	//console.log(project.defaultAssignee);
-
-	req.defaultcontact = project.defaultAssignee;
-	next();
-	}
-
-
-const Project = mongoose.model('Project', projectSchema);
+//Models
+const models = require("./models.js");
+const Bug = models.modelBug;
+const Project = models.modelProject;
 
 router.get('/', auth.verifyToken, User.verify, async (req, res) =>
 	{
@@ -94,6 +62,35 @@ router.post('/', auth.verifyToken, User.verify, async (req, res) =>
 		{
 		await project.save();
 		return res.send(project);
+		}
+	catch (error)
+		{
+		console.log(error);
+		return res.sendStatus(500);
+		}
+	});
+
+router.delete('/:projectName', auth.verifyToken, User.verify, async (req, res) =>
+	{
+	//console.log("Deleting Project . . .");
+	if(!req.isAdmin)
+		{
+		return res.status(403).send({error: "You require Administrator privlages to make the requested request!"});
+		}
+
+	try
+		{
+		//See if we have even just one bug that has this as it's parent project
+		let bug = await Bug.findOne({project : req.params.projectName});
+
+		//console.log(bug);
+		if(bug)
+			{
+			return res.sendStatus(500);
+			}
+		//console.log("Deleting: " + req.params.projectName );
+		await Project.deleteOne({ projectName : req.params.projectName });
+		return res.sendStatus(200);
 		}
 	catch (error)
 		{

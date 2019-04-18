@@ -6,6 +6,7 @@
 		<p>Username: <input v-model="username" placeholder="Enter your username/email"></p>
 		<p>Password: <input v-model="password" type="password" placeholder="Enter your passoword"></p>
 		<button  type="submit"> Login </button>
+		<p v-if="error">{{error}}</p>
 	</form>
 	</div>
 </template>

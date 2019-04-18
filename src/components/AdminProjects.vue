@@ -31,7 +31,7 @@
 							<input v-model="deleteProject" placeholder="Select project to delete">
 							<autoComplete :collection="projectNames" :targetValue="deleteProject" @SetValue="GetRemoveProject" />
 						</div>
-					<p><button>Delete Project</button></p>
+					<p><button>Delete Project</button></p> <div v-if="removalError"> {{removalError}} </div>
 					</div>
 				</form>
 
@@ -58,6 +58,7 @@ export default
 			securityProject: '',
 			newPermission: '',
 			deleteProject: '',
+			removalError: '',
 			}
 		},
 	computed:
@@ -83,6 +84,10 @@ export default
 		{
 		async RemoveProject()
 			{
+			await this.$store.dispatch("DeleteProject",this.deleteProject);
+			this.deleteProject = '';
+			await this.$store.dispatch("GetProjects",);
+			await this.$store.dispatch("GetProjectNames",this.projects);
 			},
 		async AddSecurityProject()
 			{

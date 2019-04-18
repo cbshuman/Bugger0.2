@@ -19,6 +19,7 @@
 
 		<div v-if="!user">
 			<login />
+			<br><center><a target="_blank" href="https://github.com/cbshuman/Bugger0.2"><img src ="git.png"></a></center>
 		</div>
 
 		<router-view  v-else />

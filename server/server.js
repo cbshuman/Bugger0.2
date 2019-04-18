@@ -28,9 +28,10 @@ const bugs = require("./bugs.js");
 const permissions = require("./permissions.js");
 const projects = require("./projects.js");
 const users = require("./users.js");
+const models = require("./models.js");
 
 app.use(cookieParser());
-app.use("/api/bugs", bugs);
+app.use("/api/bugs", bugs.routes);
 app.use("/api/projects", projects.routes);
 app.use("/api/permissions", permissions.routes);
 app.use("/api/users", users.routes);
