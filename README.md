@@ -3,7 +3,7 @@
 To log into Bugger ver0.2, use the following:
 
 username: admin
-password: admin
+<br>password: admin
 
 
 ## Project setup
